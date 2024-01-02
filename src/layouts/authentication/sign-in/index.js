@@ -16,7 +16,7 @@ Coded by www.creative-tim.com
 import { useState } from "react";
 
 // react-router-dom components
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // @mui material components
 import Switch from "@mui/material/Switch";
@@ -35,10 +35,10 @@ import curved9 from "assets/images/curved-images/curved-6.jpg";
 
 function SignIn() {
   const [rememberMe, setRememberMe] = useState(true);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-
+  const [email, setEmail] = useState("");
+  const [pwd, setPwd] = useState("");
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
+  const navigate = useNavigate(); // useNavigate 훅 사용
   
   const handleLogin = async (e) => {
     e.preventDefault(); // 폼 제출 기본 이벤트 방지
@@ -50,16 +50,32 @@ function SignIn() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, pwd }),
       });
 
       if (response.ok) {
         // 성공적인 로그인 처리
         console.log("로그인 성공");
-        console.log("username:"+username+","+"password:"+password);
+          // 성공적인 로그인 처리
+        const data = await response.json();
+
+        // LocalStorage에 사용자 정보 저장
+        localStorage.setItem('customerId', data.customerId);
+        localStorage.setItem('customerName', data.customerName);
+        localStorage.setItem('customerPhone', data.customerPhone);
+        localStorage.setItem('customerEmail', data.customerEmail);
+        console.log("로그인 성공");
+        // "/dashboard"로 리다이렉트
+        navigate("/dashboard");
       } else {
         // 로그인 실패 처리
         console.log("로그인 실패");
+        localStorage.setItem('customerId', "-1");
+        localStorage.setItem('customerName', "TestCusName");
+        localStorage.setItem('customerPhone', "TestCusPhone");
+        localStorage.setItem('customerEmail', "TestCusEmail");
+        // "/dashboard"로 리다이렉트
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error("로그인 요청 중 오류 발생", error);
@@ -69,18 +85,18 @@ function SignIn() {
   return (
     <CoverLayout
       title="환영합니다."
-      description="ID 및 패스워드를 입력하여 로그인하세요."
+      description="이메일 및 패스워드를 입력하여 로그인하세요."
       image={curved9}
     >
       <SoftBox component="form" role="form" onSubmit={handleLogin}>
         <SoftBox mb={2}>
           <SoftBox mb={1} ml={0.5}>
             <SoftTypography component="label" variant="caption" fontWeight="bold">
-              유저 ID
+              유저 이메일
             </SoftTypography>
           </SoftBox>
-          <SoftInput type="username" placeholder="username" 
-                     value={username} onChange={(e) => setUsername(e.target.value)} />
+          <SoftInput type="email" placeholder="유저 이메일" 
+                     value={email} onChange={(e) => setEmail(e.target.value)} />
         </SoftBox>
         <SoftBox mb={2}>
           <SoftBox mb={1} ml={0.5}>
@@ -88,8 +104,8 @@ function SignIn() {
               패스워드
             </SoftTypography>
           </SoftBox>
-          <SoftInput type="password" placeholder="Password" 
-                     value={password} onChange={(e) => setPassword(e.target.value)} />
+          <SoftInput type="password" placeholder="패스워드" 
+                     value={pwd} onChange={(e) => setPwd(e.target.value)} />
         </SoftBox>
         <SoftBox display="flex" alignItems="center">
           <Switch checked={rememberMe} onChange={handleSetRememberMe} />

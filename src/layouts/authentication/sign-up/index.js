@@ -37,36 +37,72 @@ import Separator from "layouts/authentication/components/Separator";
 import curved6 from "assets/images/curved-images/curved14.jpg";
 
 function SignUp() {
-  const [agreement, setAgremment] = useState(true);
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerPwd, setCustomerPwd] = useState('');
+  const [agreement, setAgreement] = useState(false);
 
-  const handleSetAgremment = () => setAgremment(!agreement);
+  const handleSetAgremment = () => setAgreement(!agreement);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // 폼 기본 제출 동작 방지
+
+    if (!agreement) {
+      alert('약관에 동의해주세요.');
+      return;
+    }
+
+    try {
+      // 서버에 회원 가입 요청
+      const response = await fetch('/api/signup', { // 'YOUR_API_ENDPOINT'는 실제 API 엔드포인트로 대체해야 함
+        method: 'POST', // 요청 방식에 따라 'POST' 등으로 변경할 수 있음
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customername: customerName,
+          customerphone: customerPhone,
+          customeremail: customerEmail,
+          customerpwd: customerPwd,
+        }),
+      });
+
+      if (response.ok) {
+        // 회원 가입 성공 처리
+        console.log("회원 가입 성공");
+      } else {
+        // 회원 가입 실패 처리
+        console.log("회원 가입 실패");
+      }
+    } catch (error) {
+      console.error("회원 가입 요청 중 오류 발생", error);
+    }
+  };
+
 
   return (
     <BasicLayout
-      title="Welcome!"
-      description="Use these awesome forms to login or create new account in your project for free."
+      title="회원 가입"
+      description="회원으로 가입하여 WooriAccount의 모든 혜택을 누려보세요."
       image={curved6}
     >
       <Card>
-        <SoftBox p={3} mb={1} textAlign="center">
-          <SoftTypography variant="h5" fontWeight="medium">
-            Register with
-          </SoftTypography>
-        </SoftBox>
         <SoftBox mb={2}>
-          <Socials />
         </SoftBox>
-        <Separator />
         <SoftBox pt={2} pb={3} px={3}>
-          <SoftBox component="form" role="form">
+          <SoftBox component="form" role="form" onSubmit={handleSubmit}>
             <SoftBox mb={2}>
-              <SoftInput placeholder="Name" />
+              <SoftInput type="text" placeholder="성명" onChange={(e) => setCustomerName(e.target.value)} />
             </SoftBox>
             <SoftBox mb={2}>
-              <SoftInput type="email" placeholder="Email" />
+              <SoftInput type="tel" placeholder="전화번호" onChange={(e) => setCustomerPhone(e.target.value)} />
             </SoftBox>
             <SoftBox mb={2}>
-              <SoftInput type="password" placeholder="Password" />
+              <SoftInput type="email" placeholder="유저 이메일" onChange={(e) => setCustomerEmail(e.target.value)} />
+            </SoftBox>
+            <SoftBox mb={2}>
+              <SoftInput type="password" placeholder="패스워드" onChange={(e) => setCustomerPwd(e.target.value)} />
             </SoftBox>
             <SoftBox display="flex" alignItems="center">
               <Checkbox checked={agreement} onChange={handleSetAgremment} />
@@ -76,7 +112,7 @@ function SignUp() {
                 onClick={handleSetAgremment}
                 sx={{ cursor: "poiner", userSelect: "none" }}
               >
-                &nbsp;&nbsp;I agree the&nbsp;
+                &nbsp;&nbsp;회원 가입&nbsp;
               </SoftTypography>
               <SoftTypography
                 component="a"
@@ -85,17 +121,28 @@ function SignUp() {
                 fontWeight="bold"
                 textGradient
               >
-                Terms and Conditions
+                약관
+              </SoftTypography>
+              <SoftTypography
+                variant="button"
+                fontWeight="regular"
+                onClick={handleSetAgremment}
+                sx={{ cursor: "poiner", userSelect: "none" }}
+              >
+                에 동의합니다.
               </SoftTypography>
             </SoftBox>
             <SoftBox mt={4} mb={1}>
-              <SoftButton variant="gradient" color="dark" fullWidth>
-                sign up
+              <SoftButton type="submit" variant="gradient" color="dark" fullWidth>
+                회원 가입
               </SoftButton>
             </SoftBox>
-            <SoftBox mt={3} textAlign="center">
+          </SoftBox>
+          
+          <SoftBox mt={3} textAlign="center">
+              <Separator />
               <SoftTypography variant="button" color="text" fontWeight="regular">
-                Already have an account?&nbsp;
+                이미 회원이십니까?&nbsp;
                 <SoftTypography
                   component={Link}
                   to="/authentication/sign-in"
@@ -104,11 +151,10 @@ function SignUp() {
                   fontWeight="bold"
                   textGradient
                 >
-                  Sign in
+                  로그인
                 </SoftTypography>
               </SoftTypography>
             </SoftBox>
-          </SoftBox>
         </SoftBox>
       </Card>
     </BasicLayout>

@@ -1,12 +1,19 @@
-import * as React from 'react';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types'; // PropTypes import
+
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import colors from "assets/theme/base/colors";
 
-export default function AccountsList() {
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [selectedItem, setSelectedItem] = React.useState('우리은행 자유입출금 123-123123-12');
+// onSelectAccount prop에 대한 타입 정의
+AccountsList.propTypes = {
+  onSelectAccount: PropTypes.func.isRequired, // onSelectAccount는 함수 타입이며 필수라고 지정
+};
+
+export default function AccountsList({ onSelectAccount }) { // onSelectAccount는 선택된 계좌 ID를 처리하는 함수
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedItem, setSelectedItem] = useState('우리은행 자유입출금 123-123123-12');
   const open = Boolean(anchorEl);
   const { black } = colors;
 
@@ -14,9 +21,10 @@ export default function AccountsList() {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = (value) => () => {
-    setSelectedItem(value);
+  const handleClose = (account) => () => {
+    setSelectedItem(account);
     setAnchorEl(null);
+    onSelectAccount(account); // 선택된 계좌 ID를 부모 컴포넌트에 전달
   };
 
   return (

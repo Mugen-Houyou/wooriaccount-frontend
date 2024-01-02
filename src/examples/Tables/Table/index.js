@@ -47,8 +47,8 @@ function Table({ columns, rows }) {
     let pr;
 
     if (key === 0) {
-      pl = 3;
-      pr = 3;
+      pl = 2;
+      pr = 2;
     } else if (key === columns.length - 1) {
       pl = 3;
       pr = 3;
@@ -64,12 +64,12 @@ function Table({ columns, rows }) {
         width={width || "auto"}
         pt={1.5}
         pb={1.25}
-        pl={align === "left" ? pl : 3}
-        pr={align === "right" ? pr : 3}
+        pl={align === "left" ? pl : 5}
+        pr={align === "right" ? pr : 7}
         textAlign={align}
         fontSize={size.xxs}
         fontWeight={fontWeightBold}
-        color="secondary"
+        color="primary"
         opacity={0.7}
         borderBottom={`${borderWidth[1]} solid ${light.main}`}
       >
@@ -84,7 +84,7 @@ function Table({ columns, rows }) {
     const tableRow = columns.map(({ name, align }) => {
       let template;
 
-      if (Array.isArray(row[name])) {
+      if (Array.isArray(row[name])) {// 즉 첫줄이면
         template = (
           <SoftBox
             key={uuidv4()}
@@ -102,12 +102,13 @@ function Table({ columns, rows }) {
             </SoftBox>
           </SoftBox>
         );
-      } else {
+      } else { // 이후 (내용)이면
         template = (
           <SoftBox
             key={uuidv4()}
             component="td"
             p={1}
+            pl={2}
             textAlign={align}
             borderBottom={row.hasBorder ? `${borderWidth[1]} solid ${light.main}` : null}
           >
@@ -131,7 +132,7 @@ function Table({ columns, rows }) {
 
   return useMemo(
     () => (
-      <TableContainer>
+      <TableContainer style={{marginLeft:"0.5rem", boxShadow:"none"}}>
         <MuiTable>
           <SoftBox component="thead">
             <TableRow>{renderColumns}</TableRow>

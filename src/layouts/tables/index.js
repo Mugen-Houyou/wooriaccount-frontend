@@ -13,6 +13,8 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
+import {useState, useEffect} from 'react';
+
 // @mui material components
 import Card from "@mui/material/Card";
 
@@ -28,37 +30,124 @@ import Table from "examples/Tables/Table";
 
 // Data
 import authorsTableData from "layouts/tables/data/authorsTableData";
-import projectsTableData from "layouts/tables/data/projectsTableData";
 import AccountsList from "../../components/AccountsList";
 
+// 목업
+const mockTransactions = [
+  {
+    senderName: "홍길동",
+    receiverName: "김철수",
+    amount: "100000",
+    balanceAfterTx: "500000",
+    description: "송금",
+    createdAt: "2022-07-01T12:00:00"
+  },
+  {
+    senderName: "이영희",
+    receiverName: "박지민",
+    amount: "150000",
+    balanceAfterTx: "350000",
+    description: "생일 축하금",
+    createdAt: "2022-07-02T15:30:00"
+  },
+  {
+    senderName: "김민준",
+    receiverName: "조은지",
+    amount: "200000",
+    balanceAfterTx: "800000",
+    description: "대출 상환",
+    createdAt: "2022-07-03T09:20:00"
+  },
+  {
+    senderName: "최준호",
+    receiverName: "유서연",
+    amount: "50000",
+    balanceAfterTx: "450000",
+    description: "식사비",
+    createdAt: "2022-07-04T13:45:00"
+  },
+  {
+    senderName: "박지민",
+    receiverName: "이영희",
+    amount: "120000",
+    balanceAfterTx: "620000",
+    description: "대여금 반환",
+    createdAt: "2022-07-05T18:00:00"
+  }
+];
+
 function Tables() {
-  const { columns, rows } = authorsTableData;
-  const { columns: prCols, rows: prRows } = projectsTableData;
+  const [selectedAccountId, setSelectedAccountId] = useState("");
+  const [transactions, setTransactions] = useState(mockTransactions);
+
+  useEffect(() => {
+    if (selectedAccountId) {
+      const fetchTransactions = async () => {
+        try {
+          const response = await fetch(`http://127.0.0.1:8080/api/tx/all/${selectedAccountId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setTransactions(data.content);
+          } else {
+            console.error("Failed to fetch transactions");
+            setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
+          }
+        } catch (error) {
+          console.error("Error fetching transactions", error);
+          setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
+        }
+      };
+
+      fetchTransactions();
+    }
+  }, [selectedAccountId]);
+
+  
+  // 거래 내역 데이터를 테이블에 맞는 형식으로 변환
+  const rows = transactions.map((tx, index) => {
+    return {
+
+      senderName: tx.senderName,
+      receiverName: tx.receiverName,
+      amount: tx.amount,
+      balanceAfterTx: tx.balanceAfterTx,
+      description: tx.description,
+      createdAt: tx.createdAt,
+    };
+  });
+
+  // 테이블 컬럼 정의
+  const columns = [
+    { name: "senderName", align: "left" },
+    { name: "receiverName", align: "left" },
+    { name: "amount", align: "right" },
+    { name: "balanceAfterTx", align: "right" },
+    { name: "description", align: "left" },
+    { name: "createdAt", align: "left" },
+  ];
+
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <SoftBox py={3}>
         <SoftBox mb={3}>
-          <Card>
-
-            <AccountsList>
-                <SoftTypography variant="h6">우리은행 자유입출금 123-123123-12</SoftTypography>
-            </AccountsList>
-
-            <SoftBox
-              sx={{
-                "& .MuiTableRow-root:not(:last-child)": {
-                  "& td": {
-                    borderBottom: ({ borders: { borderWidth, borderColor } }) =>
-                      `${borderWidth[1]} solid ${borderColor}`,
-                  },
+          
+        <Card>
+          <AccountsList onSelectAccount={(account) => setSelectedAccountId(account)} />
+          <SoftBox
+            sx={{
+              "& .MuiTableRow-root:not(:last-child)": {
+                "& td": {
+                  borderBottom: ({ borders: { borderWidth, borderColor } }) =>
+                    `${borderWidth[1]} solid ${borderColor}`,
                 },
-              }}
-            >
-              <Table columns={columns} rows={rows} />
-            </SoftBox>
-          </Card>
+              },
+            }}
+          >
+            <Table columns={columns} rows={rows}  />
+          </SoftBox>
+        </Card>
         </SoftBox>
       </SoftBox>
       <Footer />

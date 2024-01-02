@@ -14,6 +14,7 @@ Coded by www.creative-tim.com
 */
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import routes from 'routes';
 
 // react-router components
@@ -28,6 +29,8 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import Icon from "@mui/material/Icon";
+import LogoutIcon from '@mui/icons-material/Logout';
+
 
 // Soft UI Dashboard React components
 import SoftBox from "components/SoftBox";
@@ -61,6 +64,8 @@ import logoSpotify from "assets/images/small-logos/logo-spotify.svg";
 import MenuTitle from "examples/MenuTitle";
 
 function DashboardNavbar({ absolute, light, isMini }) {
+
+  const navigate = useNavigate();
   const [navbarType, setNavbarType] = useState();
   const [controller, dispatch] = useSoftUIController();
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator } = controller;
@@ -69,9 +74,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
 
   useEffect(() => {
     // LocalStorage에서 회원 이름을 가져옴
-    const storedMemberName = localStorage.getItem('memberName');
-    if (storedMemberName) {
-      setMemberName(storedMemberName);
+    const storedCustomerName = localStorage.getItem('customerName');
+    if (storedCustomerName) {
+      setCustomerName(storedCustomerName);
     }
   }, []);
 
@@ -105,7 +110,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
-  const [memberName, setMemberName] = useState("");
+  const [customerName, setCustomerName] = useState("");
 
   // Render the notifications menu
   const renderMenu = () => (
@@ -146,6 +151,35 @@ function DashboardNavbar({ absolute, light, isMini }) {
     </Menu>
   );
 
+  const handleSignOut = async () => {
+    try {
+      const response = await fetch('/api/signout', {
+        method: 'GET', // 또는 서버에서 지정한 방식
+        // 필요한 경우 헤더 설정
+      });
+
+      if (response.ok) {
+        // LocalStorage에서 사용자 정보 삭제
+        localStorage.removeItem('customerId');
+        localStorage.removeItem('customerName');
+        localStorage.removeItem('customerPhone');
+        localStorage.removeItem('customerEmail');
+        // 로그인 페이지로 리디렉트
+        navigate("/authentication/sign-in");
+      } else {
+        // 로그아웃 실패 처리
+        console.log("로그아웃 실패 - 그래도 LocalStorage는 비운다.");
+        localStorage.removeItem('customerId');
+        localStorage.removeItem('customerName');
+        localStorage.removeItem('customerPhone');
+        localStorage.removeItem('customerEmail');   
+        navigate("/authentication/sign-in");
+      }
+    } catch (error) {
+      console.error("로그아웃 요청 중 오류 발생", error);
+    }
+  };
+
   return (
     <AppBar
       position={absolute ? "absolute" : navbarType}
@@ -166,7 +200,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
               />
             </SoftBox>
             <SoftBox color={light ? "white" : "inherit"}>
-              <Link to="/authentication/sign-in">
+              <Link>
                 <IconButton sx={navbarIconButton} size="small">
                   <Icon
                     sx={({ palette: { dark, white } }) => ({
@@ -184,28 +218,22 @@ function DashboardNavbar({ absolute, light, isMini }) {
                       * 저장 예시:
                       * localStorage.setItem('memberName', '회원명테스트');
                     */}
-                    {memberName || "로그인"} 
+                    {customerName || "로그인"} 
                   </SoftTypography>
                 </IconButton>
               </Link>
-              <IconButton
-                size="small"
-                color="inherit"
-                sx={navbarMobileMenu}
-                onClick={handleMiniSidenav}
-              >
-                <Icon className={light ? "text-white" : "text-dark"}>
-                  {miniSidenav ? "menu_open" : "menu"}
-                </Icon>
-              </IconButton>
-              <IconButton
-                size="small"
-                color="inherit"
-                sx={navbarIconButton}
-                onClick={handleConfiguratorOpen}
-              >
-                <Icon>settings</Icon>
-              </IconButton>
+              <Link onClick={handleSignOut}>
+                <IconButton sx={navbarIconButton} size="small">
+                  <LogoutIcon />
+                  <SoftTypography
+                    variant="button"
+                    fontWeight="medium"
+                    color={light ? "white" : "dark"}
+                  >
+                    로그아웃
+                  </SoftTypography>
+                </IconButton>
+              </Link>
               <IconButton
                 size="small"
                 color="inherit"
