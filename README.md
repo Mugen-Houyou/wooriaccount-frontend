@@ -1,10 +1,10 @@
-# 시작하기
+# WooriAccount Frontend 시작하기
 ## 사양
 1. Nodejs v20.10.0 LTS
 2. NPM 10.2.3
 3. 이외 의존성들은 package.json 참고.
 
-## WooriAccount Frontend 시작 방법
+## 시작 방법
 아래 셸 명령어를 순서대로 실행:
 
 `npm i`
