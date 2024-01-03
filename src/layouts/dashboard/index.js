@@ -105,7 +105,7 @@ function Dashboard() {
         console.error("계좌 생성 실패");
       }
     } catch (error) {
-      console.error("계좌 생성 요청 중 오류 발생", error);
+      console.error("계좌 생성 요청 중 오류 발생: ", error);
     }
   };
 
@@ -129,7 +129,7 @@ function Dashboard() {
             <Grid item xs={18} sm={6} xl={4} onClick={createAnAccount}>
               <MiniStatisticsCard
                 title={{ text: "새 계좌 생성하기..." }}
-                icon={{ color: "info", component: "paid" }}
+                icon={{ color: "info", component: "addcircleoutline" }}
               />
             </Grid>
           </Grid>
