@@ -7,8 +7,8 @@
 ## 시작 방법
 아래 셸 커맨드를 순서대로 실행:
 ```bash
-    npm i
-    npm start
+npm i
+npm start
 ```
 이후 http://localhost:3000 접속.
 
