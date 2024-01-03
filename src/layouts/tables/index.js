@@ -76,9 +76,55 @@ const mockTransactions = [
   }
 ];
 
+
+// 일시 포매터
+function formatDate(dateArray) {
+  const [year, month, day, hour, minute, second] = dateArray;
+  return new Date(year, month -1, day, hour, minute, second); 
+  // return date.toISOString().split('.')[0]; 
+}
+
 function Tables() {
   const [selectedAccountId, setSelectedAccountId] = useState("");
   const [transactions, setTransactions] = useState(mockTransactions);
+
+  useEffect( () => {
+    // 첫 마운트 시, 
+    // 먼저 계좌목록 조회 후, 
+    // 첫 번째 계좌의 거래내역을 조회.
+    const initFetchAcc = async () => {
+      try {
+        const customerId = localStorage.getItem("customerId"); // LocalStorage에서 customerId 가져오기
+        const response = await fetch(`http://127.0.0.1:8080/api/accounts/find?id=${customerId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.length > 0) {
+            const firstAccount = data[0].accountId; // 첫 번째 계좌를 기본 선택
+            try {
+              const response = await fetch(`http://127.0.0.1:8080/api/tx/all/${firstAccount}`);
+              if (response.ok) {
+                const data = await response.json();
+                setTransactions(data.content);
+              } else {
+                console.error("Failed to fetch transactions");
+                setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
+              }
+            } catch (error) {
+              console.error("Error fetching transactions", error);
+              setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
+            }
+          }
+        } else {
+          console.error("최초로 계좌 목록을 불러오는 데 실패했습니다.");
+          setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
+        }
+      } catch (error) {
+        console.error("최초로 계좌 목록 요청 중 오류 발생", error);
+        setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
+      }
+    };
+    initFetchAcc();
+  }, [] );
 
   useEffect(() => {
     if (selectedAccountId) {
@@ -110,7 +156,7 @@ function Tables() {
       amount: tx.amount,
       balanceAfterTx: tx.balanceAfterTx,
       description: tx.description,
-      createdAt: new Date(tx.createdAt).toLocaleString(),
+      createdAt: formatDate(tx.createdAt).toLocaleString(),
     };
   });
 
@@ -131,7 +177,7 @@ function Tables() {
           
         <Card >
           <div style={{display:"flex", paddingLeft:"1rem"}}>
-            <SoftTypography variant="button" fontWeight="medium" color="text">
+            <SoftTypography variant="button" fontWeight="medium" color="text" paddingTop="0.4rem">
               계좌 선택: 
             </SoftTypography>
             <AccountsList onSelectAccount={(account) => setSelectedAccountId(account)} />

@@ -7,10 +7,12 @@ import colors from "assets/theme/base/colors";
 
 function AccountsList({ onSelectAccount }) {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [accounts, setAccounts] = useState([]); // 계좌 목록 상태
+  const [accounts, setAccounts] = useState([]);
+  const [selectedAccountId, setSelectedAccountId] = useState('');
   const [selectedItem, setSelectedItem] = useState('');
   const open = Boolean(anchorEl);
   const { dark } = colors;
+
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -38,10 +40,13 @@ function AccountsList({ onSelectAccount }) {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = (accountNumber) => () => {
-    setSelectedItem(accountNumber);
+  const handleClose = (account) => () => {
+    if (account) {
+      setSelectedAccountId(account.accountId);
+      setSelectedItem(account.accountNumber);
+      onSelectAccount(account.accountId);
+    }
     setAnchorEl(null);
-    onSelectAccount(accountNumber); // 선택된 계좌 번호를 부모 컴포넌트에 전달
   };
 
   return (
@@ -60,13 +65,13 @@ function AccountsList({ onSelectAccount }) {
         id="basic-menu"
         anchorEl={anchorEl}
         open={open}
-        onClose={handleClose(selectedItem)}
+        onClose={handleClose()}
         MenuListProps={{ 'aria-labelledby': 'basic-button' }}
       >
-        {accounts.map((account) => (
-          <MenuItem key={account.accountNumber} onClick={handleClose(account.accountNumber)}>
-            {account.accountNumber}
-          </MenuItem>
+      {accounts.map((account) => (
+        <MenuItem key={account.accountNumber} onClick={handleClose(account)}>
+          {account.accountNumber}
+        </MenuItem>
         ))}
       </Menu>
     </div>

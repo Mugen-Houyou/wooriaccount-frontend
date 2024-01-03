@@ -97,16 +97,16 @@ function PaymentMethod() {
               }}
             />
       <SoftBox pt={2} px={2} display="flex" justifyContent="space-between" alignItems="center" >
-        <SoftTypography variant="h6" fontWeight="medium" minWidth="110px">
-          송금할 계좌:
+        <SoftTypography variant="h6" fontWeight="medium" minWidth="130px">
+          송금할 내 계좌:
         </SoftTypography>
         <SoftInput type="text" placeholder="송금할 계좌를 입력" 
                      value={accountFrom} onChange={(e) => setAccountFrom(e.target.value)} />
       </SoftBox>
       
       <SoftBox pt={2} px={2} display="flex" justifyContent="space-between" alignItems="center" >
-        <SoftTypography variant="h6" fontWeight="medium" minWidth="130px">
-          송금받을 계좌:
+        <SoftTypography variant="h6" fontWeight="medium" minWidth="180px">
+          송금받을 상대의 계좌:
         </SoftTypography>
         <SoftInput type="text" placeholder="송금받을 계좌를 입력" 
                      value={accountTo} onChange={(e) => setAccountTo(e.target.value)} />

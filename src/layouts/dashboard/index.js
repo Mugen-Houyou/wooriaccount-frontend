@@ -58,23 +58,22 @@ function Dashboard() {
   const { chart, items } = reportsBarChartData;
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]); // 계좌 목록 상태
+  const fetchAccounts = async () => {
+    const customerId = localStorage.getItem('customerId'); // LocalStorage에서 customerId 가져오기
+    try {
+      const response = await fetch(`http://localhost:8080/api/accounts/find?id=${customerId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setAccounts(data); // 계좌 목록 상태 업데이트
+      } else {
+        console.error("계좌 목록을 불러오는 데 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("계좌 목록 요청 중 오류 발생", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchAccounts = async () => {
-      const customerId = localStorage.getItem('customerId'); // LocalStorage에서 customerId 가져오기
-      try {
-        const response = await fetch(`http://localhost:8080/api/accounts/find?id=${customerId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setAccounts(data); // 계좌 목록 상태 업데이트
-        } else {
-          console.error("계좌 목록을 불러오는 데 실패했습니다.");
-        }
-      } catch (error) {
-        console.error("계좌 목록 요청 중 오류 발생", error);
-      }
-    };
-
     fetchAccounts();
   }, []);
 
@@ -99,9 +98,9 @@ function Dashboard() {
   
       if (response.ok) {
         const data = await response.json();
+        fetchAccounts();
         alert("계좌 생성 성공!");
         console.log("계좌 생성 성공!", data);
-        navigate("/dashboard");
       } else {
         console.error("계좌 생성 실패");
       }
