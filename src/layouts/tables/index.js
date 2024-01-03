@@ -103,20 +103,17 @@ function Tables() {
   }, [selectedAccountId]);
 
   
-  // 거래 내역 데이터를 테이블에 맞는 형식으로 변환
-  const rows = transactions.map((tx, index) => {
+  const rows = transactions.map((tx) => {
     return {
-
       senderName: tx.senderName,
       receiverName: tx.receiverName,
       amount: tx.amount,
       balanceAfterTx: tx.balanceAfterTx,
       description: tx.description,
-      createdAt: tx.createdAt,
+      createdAt: new Date(tx.createdAt).toLocaleString(),
     };
   });
 
-  // 테이블 컬럼 정의
   const columns = [
     { name: "senderName", align: "left" },
     { name: "receiverName", align: "left" },
@@ -126,25 +123,29 @@ function Tables() {
     { name: "createdAt", align: "left" },
   ];
 
-
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <SoftBox py={3}>
         <SoftBox mb={3}>
           
-        <Card>
-          <AccountsList onSelectAccount={(account) => setSelectedAccountId(account)} />
-          <SoftBox
-            sx={{
-              "& .MuiTableRow-root:not(:last-child)": {
-                "& td": {
-                  borderBottom: ({ borders: { borderWidth, borderColor } }) =>
-                    `${borderWidth[1]} solid ${borderColor}`,
+        <Card >
+          <div style={{display:"flex", paddingLeft:"1rem"}}>
+            <SoftTypography variant="button" fontWeight="medium" color="text">
+              계좌 선택: 
+            </SoftTypography>
+            <AccountsList onSelectAccount={(account) => setSelectedAccountId(account)} />
+          </div>
+            <SoftBox
+              sx={{
+                "& .MuiTableRow-root:not(:last-child)": {
+                  "& td": {
+                    borderBottom: ({ borders: { borderWidth, borderColor } }) =>
+                      `${borderWidth[1]} solid ${borderColor}`,
+                  },
                 },
-              },
-            }}
-          >
+              }}
+            >
             <Table columns={columns} rows={rows}  />
           </SoftBox>
         </Card>

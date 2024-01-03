@@ -45,7 +45,7 @@ function SignIn() {
 
     try {
       // 로그인 요청 예시 
-      const response = await fetch('/api/login', {
+      const response = await fetch('http://localhost:8080/api/customers/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,15 +69,20 @@ function SignIn() {
         navigate("/dashboard");
       } else {
         // 로그인 실패 처리
-        console.log("로그인 실패");
-        localStorage.setItem('customerId', "-1");
-        localStorage.setItem('customerName', "TestCusName");
-        localStorage.setItem('customerPhone', "TestCusPhone");
-        localStorage.setItem('customerEmail', "TestCusEmail");
+        alert("로그인 실패! 이메일 및 패스워드를 다시 확인해주세요.");
+        setEmail("");
+        setPwd("");
+        // localStorage.setItem('customerId', "-1");
+        // localStorage.setItem('customerName', "TestCusName");
+        // localStorage.setItem('customerPhone', "TestCusPhone");
+        // localStorage.setItem('customerEmail', "TestCusEmail");
         // "/dashboard"로 리다이렉트
-        navigate("/dashboard");
+        // navigate("/dashboard");
       }
     } catch (error) {
+      alert("로그인 실패! 이메일 및 패스워드를 다시 확인해주세요.");
+      setEmail("");
+      setPwd("");
       console.error("로그인 요청 중 오류 발생", error);
     }
   };

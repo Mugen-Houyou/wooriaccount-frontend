@@ -13,6 +13,9 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
+import { useState,useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
@@ -40,43 +43,93 @@ import OrderOverview from "layouts/dashboard/components/OrderOverview";
 
 // Data
 import reportsBarChartData from "layouts/dashboard/data/reportsBarChartData";
-import gradientLineChartData from "layouts/dashboard/data/gradientLineChartData";
+
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('ko-KR', {
+    style: 'currency',
+    currency: 'KRW',
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(amount);
+}
 
 function Dashboard() {
   const { size } = typography;
   const { chart, items } = reportsBarChartData;
+  const navigate = useNavigate();
+  const [accounts, setAccounts] = useState([]); // 계좌 목록 상태
 
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      const customerId = localStorage.getItem('customerId'); // LocalStorage에서 customerId 가져오기
+      try {
+        const response = await fetch(`http://localhost:8080/api/accounts/find?id=${customerId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setAccounts(data); // 계좌 목록 상태 업데이트
+        } else {
+          console.error("계좌 목록을 불러오는 데 실패했습니다.");
+        }
+      } catch (error) {
+        console.error("계좌 목록 요청 중 오류 발생", error);
+      }
+    };
+
+    fetchAccounts();
+  }, []);
+
+  const createAnAccount = async () => {
+
+    const customerId = localStorage.getItem('customerId'); // LocalStorage에서 customerId 가져오기
+    
+    const isConfirmed = window.confirm("정말로 계좌를 생성하시겠습니까?");
+    
+    if (!isConfirmed) return;
+
+    if (!customerId) {
+      alert("계좌 생성 권한이 없습니다. 영업점으로 직접 방문해주세요.");
+      return;
+    }
+    
+    try {
+      const response = await fetch(`http://localhost:8080/api/accounts/create/${customerId}`, {
+        method: 'POST', // 계정 생성을 위한 POST 요청
+        // 필요한 경우 헤더 설정
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        alert("계좌 생성 성공!");
+        console.log("계좌 생성 성공!", data);
+        navigate("/dashboard");
+      } else {
+        console.error("계좌 생성 실패");
+      }
+    } catch (error) {
+      console.error("계좌 생성 요청 중 오류 발생", error);
+    }
+  };
+
+  
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <SoftBox py={3}>
         <SoftBox mb={3}>
           <Grid container spacing={3}>
-            <Grid item xs={18} sm={6} xl={4}>
+            {accounts.map((account) => (
+              <Grid key={account.accountNumber} item xs={18} sm={6} xl={4}>
+                <MiniStatisticsCard
+                  title={{ text: account.accountNumber }}
+                  count={formatCurrency(account.balance)} // 포매팅 함수 사용
+                  icon={{ color: "info", component: "paid" }}
+                />
+              </Grid>
+            ))}
+            {/* 새 계좌 생성 버튼 */}
+            <Grid item xs={18} sm={6} xl={4} onClick={createAnAccount}>
               <MiniStatisticsCard
-                title={{ text: "우리은행 자유입출금 123-123123-12" }}
-                count="￦53,000"
-                icon={{ color: "info", component: "paid" }}
-              />
-            </Grid>
-            <Grid item xs={18} sm={6} xl={4}>
-              <MiniStatisticsCard
-                title={{ text: "우리은행 자유입출금 546-564754-246" }}
-                count="￦12,356"
-                icon={{ color: "info", component: "paid" }}
-              />
-            </Grid>
-            <Grid item xs={18} sm={6} xl={4}>
-              <MiniStatisticsCard
-                title={{ text: "우리은행 정기예금 459-349829-92358" }}
-                count="￦246,981,503"
-                icon={{ color: "info", component: "paid" }}
-              />
-            </Grid>
-            <Grid item xs={18} sm={6} xl={4}>
-              <MiniStatisticsCard
-                title={{ text: "우리은행 적금 9834-253982-91325" }}
-                count="￦26,382,001"
+                title={{ text: "새 계좌 생성하기..." }}
                 icon={{ color: "info", component: "paid" }}
               />
             </Grid>

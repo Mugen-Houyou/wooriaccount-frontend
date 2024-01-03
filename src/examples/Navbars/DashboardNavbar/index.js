@@ -112,6 +112,10 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const handleCloseMenu = () => setOpenMenu(false);
   const [customerName, setCustomerName] = useState("");
 
+  const goToLoginPage = () => {
+    navigate("/authentication/sign-in");
+  };
+
   // Render the notifications menu
   const renderMenu = () => (
     <Menu
@@ -216,9 +220,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
                   >
                     {/* 회원 이름이 없으면 "로그인"을 표시 
                       * 저장 예시:
-                      * localStorage.setItem('memberName', '회원명테스트');
+                      * localStorage.setItem('customerName', '회원명테스트');
                     */}
-                    {customerName || "로그인"} 
+                    {customerName || goToLoginPage()} 
                   </SoftTypography>
                 </IconButton>
               </Link>

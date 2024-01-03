@@ -14,6 +14,7 @@ Coded by www.creative-tim.com
 */
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // react-router-dom components
 import { Link } from "react-router-dom";
@@ -42,6 +43,7 @@ function SignUp() {
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPwd, setCustomerPwd] = useState('');
   const [agreement, setAgreement] = useState(false);
+  const navigate = useNavigate(); // useNavigate 훅 사용
 
   const handleSetAgremment = () => setAgreement(!agreement);
 
@@ -55,22 +57,27 @@ function SignUp() {
 
     try {
       // 서버에 회원 가입 요청
-      const response = await fetch('/api/signup', { // 'YOUR_API_ENDPOINT'는 실제 API 엔드포인트로 대체해야 함
+      const response = await fetch('http://localhost:8080/api/customers/signUp', { // 'YOUR_API_ENDPOINT'는 실제 API 엔드포인트로 대체해야 함
         method: 'POST', // 요청 방식에 따라 'POST' 등으로 변경할 수 있음
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          customername: customerName,
-          customerphone: customerPhone,
-          customeremail: customerEmail,
-          customerpwd: customerPwd,
+          customerName: customerName,
+          customerPhone: customerPhone,
+          customerEmail: customerEmail,
+          customerPwd: customerPwd,
         }),
       });
 
       if (response.ok) {
         // 회원 가입 성공 처리
-        console.log("회원 가입 성공");
+        localStorage.setItem('customerId', response.customerId);
+        localStorage.setItem('customerName', customerName);
+        localStorage.setItem('customerPhone', customerPhone);
+        localStorage.setItem('customerEmail', customerEmail);
+        alert("회원 가입 성공하였습니다! 로그인 페이지로 이동합니다.");
+        navigate("/authentication/sign-in");
       } else {
         // 회원 가입 실패 처리
         console.log("회원 가입 실패");
