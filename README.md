@@ -1,10 +1,18 @@
-# WooriAccount Frontend 시작 방법
-아래 셸 명령어를 순서대로 실행:
+# WooriAccount Frontend 시작하기
+## 요구 사항
+1. Node.js v20.10 LTS
+2. NPM 10.2.3
+3. 이외 의존성들은 package.json 참고.
 
-`npm i`
-
-`npm start`
-
+## 시작 방법
+아래 셸 커맨드를 실행하여 패키지들을 설치:
+```bash
+npm i
+```
+아래 셸 커맨드를 실행하여 시작:
+```bash
+npm start
+```
 이후 http://localhost:3000 접속.
 
 # [Soft UI Dashboard React](http://demos.creative-tim.com/soft-ui-dashboard-react/#/dashboard?ref=readme-sudr) [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter)](https://twitter.com/intent/tweet?url=https://www.creative-tim.com/product/soft-ui-dashboard-react&text=Check%20Soft%20UI%20Dashboard%20react%20made%20by%20@CreativeTim%20#webdesign%20#dashboard%20#softdesign%20#react%20https://www.creative-tim.com/product/soft-ui-dashboard-react)
