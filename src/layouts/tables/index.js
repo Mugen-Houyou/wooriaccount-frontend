@@ -29,8 +29,11 @@ import Footer from "examples/Footer";
 import Table from "examples/Tables/Table";
 
 // Data
-import authorsTableData from "layouts/tables/data/authorsTableData";
+import gradientLineChartData from "layouts/dashboard/data/gradientLineChartData";
 import AccountsList from "../../components/AccountsList";
+import GradientLineChart from 'examples/Charts/LineCharts/GradientLineChart';
+import { Icon } from '@mui/material';
+import typography from 'assets/theme/base/typography';
 
 // 목업
 const mockTransactions = [
@@ -87,6 +90,8 @@ function formatDate(dateArray) {
 function Tables() {
   const [selectedAccountId, setSelectedAccountId] = useState("");
   const [transactions, setTransactions] = useState(mockTransactions);
+
+  const { size } = typography;
 
   useEffect( () => {
     // 첫 마운트 시, 
@@ -174,14 +179,13 @@ function Tables() {
       <DashboardNavbar />
       <SoftBox py={3}>
         <SoftBox mb={3}>
-          
-        <Card >
-          <div style={{display:"flex", paddingLeft:"1rem"}}>
-            <SoftTypography variant="button" fontWeight="medium" color="text" paddingTop="0.4rem">
-              계좌 선택: 
-            </SoftTypography>
-            <AccountsList onSelectAccount={(account) => setSelectedAccountId(account)} />
-          </div>
+          <Card>
+            <div style={{ display: "flex", paddingLeft: "1rem" }}>
+              <SoftTypography variant="button" fontWeight="medium" color="text" paddingTop="0.4rem">
+                계좌 선택:
+              </SoftTypography>
+              <AccountsList onSelectAccount={(account) => setSelectedAccountId(account)} />
+            </div>
             <SoftBox
               sx={{
                 "& .MuiTableRow-root:not(:last-child)": {
@@ -192,10 +196,29 @@ function Tables() {
                 },
               }}
             >
-            <Table columns={columns} rows={rows}  />
-          </SoftBox>
-        </Card>
+              <Table columns={columns} rows={rows} />
+            </SoftBox>
+          </Card>
         </SoftBox>
+
+        <GradientLineChart
+          title="4월까지의 지출 내역"
+          description={
+            <SoftBox display="flex" alignItems="center">
+              <SoftBox fontSize={size.lg} color="success" mb={0.3} mr={0.5} lineHeight={0}>
+                <Icon className="font-bold">arrow_upward</Icon>
+              </SoftBox>
+              <SoftTypography variant="button" color="text" fontWeight="medium">
+                <SoftTypography variant="button" color="text" fontWeight="regular">
+                  2023
+                </SoftTypography>
+                년 대비 3.7% 이상 지출했어요.
+              </SoftTypography>
+            </SoftBox>
+          }
+          height="18rem"
+          chart={gradientLineChartData}
+        />
       </SoftBox>
       <Footer />
     </DashboardLayout>
