@@ -35,6 +35,39 @@ import GradientLineChart from 'examples/Charts/LineCharts/GradientLineChart';
 import { Icon } from '@mui/material';
 import typography from 'assets/theme/base/typography';
 
+function transformResponseToChartData(responseJSON) {
+  // 월별 지출 금액과 잔액을 저장할 배열 초기화
+  const monthlyExpenditure = new Array(12).fill(0);
+  const monthlyBalance = new Array(12).fill(0);
+
+  // 거래 내역을 순회하며 월별로 지출 금액과 잔액을 계산
+  responseJSON.forEach(transaction => {
+    const month = transaction.createdAt[1] - 1; // 월을 0부터 11까지의 인덱스로 변환
+    const amount = transaction.amount;
+    const balance = transaction.balanceAfterTx;
+
+    monthlyExpenditure[month] += amount;
+    monthlyBalance[month] = balance; // 월별 마지막 잔액 저장
+  });
+
+  return {
+    labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+    datasets: [
+      {
+        label: "수입/지출액",
+        color: "info",
+        data: monthlyExpenditure
+      },
+      {
+        label: "잔액",
+        color: "dark",
+        data: monthlyBalance
+      }
+    ]
+  };
+}
+
+
 // 목업
 const mockTransactions = [
   {
@@ -61,23 +94,23 @@ const mockTransactions = [
     description: "대출 상환",
     createdAt: "2022-07-03T09:20:00"
   },
-  {
-    senderName: "최준호",
-    receiverName: "유서연",
-    amount: "50000",
-    balanceAfterTx: "450000",
-    description: "식사비",
-    createdAt: "2022-07-04T13:45:00"
-  },
-  {
-    senderName: "박지민",
-    receiverName: "이영희",
-    amount: "120000",
-    balanceAfterTx: "620000",
-    description: "대여금 반환",
-    createdAt: "2022-07-05T18:00:00"
-  }
 ];
+
+const mockChartData = {
+  labels: [" "],
+  datasets: [
+    {
+      label: "로드 중...",
+      color: "info",
+      data: [1],
+    },
+    {
+      label: " ",
+      color: "dark",
+      data: [1],
+    },
+  ],
+};
 
 
 // 일시 포매터
@@ -90,46 +123,93 @@ function formatDate(dateArray) {
 function Tables() {
   const [selectedAccountId, setSelectedAccountId] = useState("");
   const [transactions, setTransactions] = useState(mockTransactions);
+  const [chartData, setChartData] = useState(mockChartData);
 
   const { size } = typography;
 
-  useEffect( () => {
+  useEffect(() => {
     // 첫 마운트 시, 
     // 먼저 계좌목록 조회 후, 
     // 첫 번째 계좌의 거래내역을 조회.
+    const handleFetchError = (error, message = "데이터 fetching에 실패!") => {
+      console.error(message, error);
+      setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
+    };
+  
     const initFetchAcc = async () => {
       try {
         const customerId = localStorage.getItem("customerId"); // LocalStorage에서 customerId 가져오기
-        const response = await fetch(`http://127.0.0.1:8080/api/accounts/find?id=${customerId}`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data.length > 0) {
-            const firstAccount = data[0].accountId; // 첫 번째 계좌를 기본 선택
-            try {
-              const response = await fetch(`http://127.0.0.1:8080/api/tx/all/${firstAccount}`);
-              if (response.ok) {
-                const data = await response.json();
-                setTransactions(data.content);
-              } else {
-                console.error("Failed to fetch transactions");
-                setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
-              }
-            } catch (error) {
-              console.error("Error fetching transactions", error);
-              setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
-            }
-          }
-        } else {
-          console.error("최초로 계좌 목록을 불러오는 데 실패했습니다.");
-          setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
+        const accResponse = await fetch(`http://127.0.0.1:8080/api/accounts/find?id=${customerId}`);
+        
+        if (!accResponse.ok) {
+          handleFetchError(null, "최초로 계좌 목록을 불러오는 데 실패했습니다.");
+          return;
         }
+  
+        const accData = await accResponse.json();
+        if (accData.length === 0) return;
+  
+        const firstAccount = accData[0].accountId; // 첫 번째 계좌를 기본 선택
+        const txResponse = await fetch(`http://127.0.0.1:8080/api/tx/all/${firstAccount}`);
+        
+        if (!txResponse.ok) {
+          handleFetchError(null, "Failed to fetch transactions");
+          return;
+        }
+  
+        const txData = await txResponse.json();
+        console.log(txData.content);
+        setTransactions(txData.content);
+        setChartData(transformResponseToChartData(txData.content));
+  
       } catch (error) {
-        console.error("최초로 계좌 목록 요청 중 오류 발생", error);
-        setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
+        handleFetchError(error);
       }
     };
+  
     initFetchAcc();
-  }, [] );
+  }, []);
+  
+  // 첫 마운트 useEffect의 리펙토링하기 전 원본.
+  // useEffect( () => {
+  //   // 첫 마운트 시, 
+  //   // 먼저 계좌목록 조회 후, 
+  //   // 첫 번째 계좌의 거래내역을 조회.
+  //   const initFetchAcc = async () => {
+  //     try {
+  //       const customerId = localStorage.getItem("customerId"); // LocalStorage에서 customerId 가져오기
+  //       const response = await fetch(`http://127.0.0.1:8080/api/accounts/find?id=${customerId}`);
+  //       if (response.ok) {
+  //         const data = await response.json();
+  //         if (data.length > 0) {
+  //           const firstAccount = data[0].accountId; // 첫 번째 계좌를 기본 선택
+  //           try {
+  //             const response = await fetch(`http://127.0.0.1:8080/api/tx/all/${firstAccount}`);
+  //             if (response.ok) {
+  //               const data = await response.json();
+  //               console.log(data.content);
+  //               setTransactions(data.content);
+  //               setChartData(transformResponseToChartData(data.content));
+  //             } else {
+  //               console.error("Failed to fetch transactions");
+  //               setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
+  //             }
+  //           } catch (error) {
+  //             console.error("Error fetching transactions", error);
+  //             setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
+  //           }
+  //         }
+  //       } else {
+  //         console.error("최초로 계좌 목록을 불러오는 데 실패했습니다.");
+  //         setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
+  //       }
+  //     } catch (error) {
+  //       console.error("최초로 계좌 목록 요청 중 오류 발생", error);
+  //       setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
+  //     }
+  //   };
+  //   initFetchAcc();
+  // }, [] );
 
   useEffect(() => {
     if (selectedAccountId) {
@@ -139,6 +219,7 @@ function Tables() {
           if (response.ok) {
             const data = await response.json();
             setTransactions(data.content);
+            setChartData(transformResponseToChartData(data.content));
           } else {
             console.error("Failed to fetch transactions");
             setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
@@ -155,7 +236,7 @@ function Tables() {
 
   
   const rows = transactions.map((tx) => {
-    return {
+    const result = {
       senderName: tx.senderName,
       receiverName: tx.receiverName,
       amount: tx.amount,
@@ -163,6 +244,7 @@ function Tables() {
       description: tx.description,
       createdAt: formatDate(tx.createdAt).toLocaleString(),
     };
+    return result;
   });
 
   const columns = [
@@ -180,13 +262,14 @@ function Tables() {
       <SoftBox py={3}>
         <SoftBox mb={3}>
           <Card>
-            <div style={{ display: "flex", paddingLeft: "1rem" }}>
+            <div style={{ display: "flex", paddingLeft: "1.5rem" , paddingTop:"0.8rem", paddingBottom:"0.8rem"}}>
               <SoftTypography variant="button" fontWeight="medium" color="text" paddingTop="0.4rem">
                 계좌 선택:
               </SoftTypography>
               <AccountsList onSelectAccount={(account) => setSelectedAccountId(account)} />
             </div>
             <SoftBox
+              style={{height:'20rem',overflowX:"hidden", overflowY:"scroll" }}
               sx={{
                 "& .MuiTableRow-root:not(:last-child)": {
                   "& td": {
@@ -196,13 +279,13 @@ function Tables() {
                 },
               }}
             >
-              <Table columns={columns} rows={rows} />
+              <Table columns={columns} rows={rows}  />
             </SoftBox>
           </Card>
         </SoftBox>
 
         <GradientLineChart
-          title="4월까지의 지출 내역"
+          title="최근 1년 입출금 차트"
           description={
             <SoftBox display="flex" alignItems="center">
               <SoftBox fontSize={size.lg} color="success" mb={0.3} mr={0.5} lineHeight={0}>
@@ -212,12 +295,11 @@ function Tables() {
                 <SoftTypography variant="button" color="text" fontWeight="regular">
                   2023
                 </SoftTypography>
-                년 대비 3.7% 이상 지출했어요.
+                년 동월 대비 약 3.7% 더 지출했어요.
               </SoftTypography>
             </SoftBox>
           }
-          height="18rem"
-          chart={gradientLineChartData}
+          chart={chartData}
         />
       </SoftBox>
       <Footer />

@@ -36,12 +36,16 @@ import Separator from "layouts/authentication/components/Separator";
 
 // Images
 import curved6 from "assets/images/curved-images/curved14.jpg";
+import { Divider } from "@mui/material";
 
 function SignUp() {
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPwd, setCustomerPwd] = useState('');
+  const [customerBirthYYYY, setCustomerBirthYYYY] = useState('');
+  const [customerBirthMM, setCustomerBirthMM] = useState('');
+  const [customerBirthDD, setCustomerBirthDD] = useState('');
   const [agreement, setAgreement] = useState(false);
   const navigate = useNavigate(); // useNavigate 훅 사용
 
@@ -100,17 +104,69 @@ function SignUp() {
         <SoftBox pt={2} pb={3} px={3}>
           <SoftBox component="form" role="form" onSubmit={handleSubmit}>
             <SoftBox mb={2}>
-              <SoftInput type="text" placeholder="성명" onChange={(e) => setCustomerName(e.target.value)} />
-            </SoftBox>
-            <SoftBox mb={2}>
-              <SoftInput type="tel" placeholder="전화번호" onChange={(e) => setCustomerPhone(e.target.value)} />
-            </SoftBox>
-            <SoftBox mb={2}>
               <SoftInput type="email" placeholder="유저 이메일" onChange={(e) => setCustomerEmail(e.target.value)} />
             </SoftBox>
             <SoftBox mb={2}>
               <SoftInput type="password" placeholder="패스워드" onChange={(e) => setCustomerPwd(e.target.value)} />
             </SoftBox>
+
+            <SoftBox position="relative" >
+              <Divider />
+              <SoftBox
+                bgColor="white"
+                position="absolute"
+                top="50%"
+                left="50%"
+                px={1.5}
+                lineHeight={1}
+                sx={{ transform: "translate(-50%, -60%)" }}
+              >
+              </SoftBox>
+            </SoftBox>
+
+            <SoftBox mb={2}>
+              <SoftInput type="text" placeholder="성명" onChange={(e) => setCustomerName(e.target.value)} />
+            </SoftBox>
+            <SoftBox mb={2}>
+              <SoftInput type="tel" placeholder="전화번호" onChange={(e) => setCustomerPhone(e.target.value)} />
+            </SoftBox>
+            <SoftBox mb={2} display="flex" alignItems="center">
+              <SoftInput 
+                type="text" 
+                placeholder="생년" 
+                maxLength={4}
+                value={customerBirthYYYY}
+                style={{textAlign:"center"}}
+                onChange={(e) => {
+                  if (e.target.value.length <= 4 && /^\d*$/.test(e.target.value)) {
+                    setCustomerBirthYYYY(e.target.value);
+                  }
+                }} 
+              />
+              <SoftInput 
+                type="text" 
+                placeholder="월" 
+                maxLength={2}
+                value={customerBirthMM}
+                onChange={(e) => {
+                  if (e.target.value.length <= 2 && /^\d*$/.test(e.target.value)) {
+                    setCustomerBirthMM(e.target.value);
+                  }
+                }} 
+              />
+              <SoftInput 
+                type="text" 
+                placeholder="일"  
+                maxLength={2}
+                value={customerBirthDD}
+                onChange={(e) => {
+                  if (e.target.value.length <= 2 && /^\d*$/.test(e.target.value)) {
+                    setCustomerBirthDD(e.target.value);
+                  }
+                }} 
+              />
+            </SoftBox>
+
             <SoftBox display="flex" alignItems="center">
               <Checkbox checked={agreement} onChange={handleSetAgremment} />
               <SoftTypography
