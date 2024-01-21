@@ -164,21 +164,19 @@ function DashboardNavbar({ absolute, light, isMini }) {
 
       if (response.ok) {
         // LocalStorage에서 사용자 정보 삭제
-        localStorage.removeItem('customerId');
-        localStorage.removeItem('customerName');
-        localStorage.removeItem('customerPhone');
-        localStorage.removeItem('customerEmail');
         // 로그인 페이지로 리디렉트
         navigate("/authentication/sign-in");
       } else {
         // 로그아웃 실패 처리
         console.log("로그아웃 실패 - 그래도 LocalStorage는 비운다.");
-        localStorage.removeItem('customerId');
-        localStorage.removeItem('customerName');
-        localStorage.removeItem('customerPhone');
-        localStorage.removeItem('customerEmail');   
         navigate("/authentication/sign-in");
       }
+      
+      localStorage.removeItem('jwtToken');
+      localStorage.removeItem('customerId');
+      localStorage.removeItem('customerName');
+      localStorage.removeItem('customerPhone');
+      localStorage.removeItem('customerEmail');
     } catch (error) {
       console.error("로그아웃 요청 중 오류 발생", error);
     }

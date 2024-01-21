@@ -60,8 +60,17 @@ function Dashboard() {
   const [accounts, setAccounts] = useState([]); // 계좌 목록 상태
   const fetchAccounts = async () => {
     const customerId = localStorage.getItem('customerId'); // LocalStorage에서 customerId 가져오기
+    const jwtToken = localStorage.getItem('jwtToken'); // LocalStorage에서 jwtToken 가져오기  
+    
     try {
-      const response = await fetch(`http://localhost:8080/api/accounts/find?id=${customerId}`);
+      const response = await fetch(`http://localhost:8080/api/accounts/find?id=${customerId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `${jwtToken}`, // JWT 토큰을 Authorization 헤더에 포함
+          'Content-Type': 'application/json'
+        }
+      });
+  
       if (response.ok) {
         const data = await response.json();
         setAccounts(data); // 계좌 목록 상태 업데이트
