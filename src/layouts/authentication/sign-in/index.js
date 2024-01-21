@@ -45,7 +45,7 @@ function SignIn() {
 
     try {
       // 로그인 요청 예시 
-      const response = await fetch('http://localhost:8080/api/customers/login', {
+      const response = await fetch('http://localhost:8080/customer/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,10 +54,13 @@ function SignIn() {
       });
 
       if (response.ok) {
-        // 성공적인 로그인 처리
+        // 로그인 성공 시 처리
         console.log("로그인 성공");
-          // 성공적인 로그인 처리
         const data = await response.json();
+
+        //const token = response.headers.get("Authorization").split(" ")[1]; // "Bearer {토큰}"에서 토큰 값만 추출
+        const token = response.headers.get("Authorization"); // "Bearer {토큰}" 전부 포함
+        localStorage.setItem('jwtToken', token);
 
         // LocalStorage에 사용자 정보 저장
         localStorage.setItem('customerId', data.customerId);
@@ -80,7 +83,7 @@ function SignIn() {
         // navigate("/dashboard");
       }
     } catch (error) {
-      alert("로그인 실패! 이메일 및 패스워드를 다시 확인해주세요.");
+      alert("로그인 실패! 이메일과 패스워드를 다시 확인해주세요.");
       setEmail("");
       setPwd("");
       console.error("로그인 요청 중 오류 발생", error);

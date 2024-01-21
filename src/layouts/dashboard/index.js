@@ -119,7 +119,7 @@ function Dashboard() {
             {accounts.map((account) => (
               <Grid key={account.accountNumber} item xs={18} sm={6} xl={4}>
                 <MiniStatisticsCard
-                  title={{ text: account.accountNumber }}
+                  title={{ text: "우리은행 "+account.accountNumber }}
                   count={formatCurrency(account.balance)} // 포매팅 함수 사용
                   icon={{ color: "info", component: "paid" }}
                 />
