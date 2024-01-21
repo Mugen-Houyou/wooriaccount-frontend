@@ -212,7 +212,7 @@ function Tables() {
                 <SoftTypography variant="button" color="text" fontWeight="regular">
                   2023
                 </SoftTypography>
-                년 대비 3.7% 이상 지출했어요.
+                년 동기 대비 3.7% 더 지출했어요.
               </SoftTypography>
             </SoftBox>
           }
