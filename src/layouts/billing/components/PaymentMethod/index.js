@@ -43,6 +43,7 @@ function PaymentMethod() {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // 폼 제출 기본 이벤트 방지
+    const jwtToken = localStorage.getItem('jwtToken'); // LocalStorage에서 jwtToken 가져오기  
     const remittanceDescription = description || "송금 요청"; 
 
     const isConfirmed = window.confirm("정말로 송금 요청하시겠습니까?");
@@ -50,10 +51,11 @@ function PaymentMethod() {
     
     try {
       // 송금 요청
-      const response = await fetch('http://localhost:8080/api/accounts/remittance', {
+      const response = await fetch(`${process.env.REACT_APP_ENDPOINT_URL}/api/accounts/remittance`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Authorization': `${jwtToken}`, // JWT 토큰을 Authorization 헤더에 포함
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           accountNumber: accountFrom,

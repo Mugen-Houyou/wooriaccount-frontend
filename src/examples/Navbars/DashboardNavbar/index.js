@@ -13,12 +13,9 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import routes from 'routes';
-
 // react-router components
-import { useLocation, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation,useNavigate,Link } from "react-router-dom";
 
 // prop-types is a library for typechecking of props.
 import PropTypes from "prop-types";
@@ -30,7 +27,6 @@ import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import Icon from "@mui/material/Icon";
 import LogoutIcon from '@mui/icons-material/Logout';
-
 
 // Soft UI Dashboard React components
 import SoftBox from "components/SoftBox";
@@ -63,21 +59,20 @@ import team2 from "assets/images/team-2.jpg";
 import logoSpotify from "assets/images/small-logos/logo-spotify.svg";
 import MenuTitle from "examples/MenuTitle";
 
-function DashboardNavbar({ absolute, light, isMini }) {
+function DashboardNavbar({ absolute, light, isMini, cNameProp }) {
 
   const navigate = useNavigate();
   const [navbarType, setNavbarType] = useState();
+  const [cNameFromState, setCNameFromState] = useState(cNameProp);
   const [controller, dispatch] = useSoftUIController();
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
 
   useEffect(() => {
-    // LocalStorage에서 회원 이름을 가져옴
-    const storedCustomerName = localStorage.getItem('customerName');
-    if (storedCustomerName) {
-      setCustomerName(storedCustomerName);
-    }
+    // (임시) LocalStorage에서 회원 이름을 가져옴
+    // 향후 React Context API `import React, { createContext, useState, useContext } from 'react';` 사용 예정.
+    setCNameFromState(cNameProp||localStorage.getItem('customerName'));
   }, []);
 
   useEffect(() => {
@@ -105,12 +100,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
     // Remove event listener on cleanup
     return () => window.removeEventListener("scroll", handleTransparentNavbar);
   }, [dispatch, fixedNavbar]);
-
-  const handleMiniSidenav = () => setMiniSidenav(dispatch, !miniSidenav);
-  const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
+  
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
-  const [customerName, setCustomerName] = useState("");
 
   const goToLoginPage = () => {
     navigate("/authentication/sign-in");
@@ -220,7 +212,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                       * 저장 예시:
                       * localStorage.setItem('customerName', '회원명테스트');
                     */}
-                    {customerName || goToLoginPage()} 
+                    {cNameFromState || goToLoginPage()} 
                   </SoftTypography>
                 </IconButton>
               </Link>
@@ -256,18 +248,13 @@ function DashboardNavbar({ absolute, light, isMini }) {
   );
 }
 
-// Setting default values for the props of DashboardNavbar
-DashboardNavbar.defaultProps = {
-  absolute: false,
-  light: false,
-  isMini: false,
-};
-
 // Typechecking props for the DashboardNavbar
 DashboardNavbar.propTypes = {
   absolute: PropTypes.bool,
   light: PropTypes.bool,
   isMini: PropTypes.bool,
+  cNameProp: PropTypes.string // customerId can be a string or undefined (implicitly allowing null)
 };
+
 
 export default DashboardNavbar;

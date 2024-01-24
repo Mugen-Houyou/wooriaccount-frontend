@@ -72,7 +72,7 @@ function transformResponseToChartData(responseJSON) {
 const mockTransactions = [
   {
     senderName: "홍길동",
-    receiverName: "김철수",
+    targetName: "김철수",
     amount: "100000",
     balanceAfterTx: "500000",
     description: "송금",
@@ -80,7 +80,7 @@ const mockTransactions = [
   },
   {
     senderName: "이영희",
-    receiverName: "박지민",
+    targetName: "박지민",
     amount: "150000",
     balanceAfterTx: "350000",
     description: "생일 축하금",
@@ -88,7 +88,7 @@ const mockTransactions = [
   },
   {
     senderName: "김민준",
-    receiverName: "조은지",
+    targetName: "조은지",
     amount: "200000",
     balanceAfterTx: "800000",
     description: "대출 상환",
@@ -124,6 +124,7 @@ function Tables() {
   const [selectedAccountId, setSelectedAccountId] = useState("");
   const [transactions, setTransactions] = useState(mockTransactions);
   const [chartData, setChartData] = useState(mockChartData);
+  const [jwtToken, setJwtToken] = useState(localStorage.getItem('jwtToken'));
 
   const { size } = typography;
 
@@ -137,9 +138,17 @@ function Tables() {
     };
   
     const initFetchAcc = async () => {
+      //const jwtToken = localStorage.getItem('jwtToken'); // LocalStorage에서 jwtToken 가져오기  
       try {
         const customerId = localStorage.getItem("customerId"); // LocalStorage에서 customerId 가져오기
-        const accResponse = await fetch(`http://127.0.0.1:8080/api/accounts/find?id=${customerId}`);
+        // const accResponse = await fetch(`http://127.0.0.1:8080/api/accounts/find?id=${customerId}`);
+        const accResponse = await fetch(`http://127.0.0.1:8080/api/accounts/find?id=${customerId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `${jwtToken}`, // JWT 토큰을 Authorization 헤더에 포함
+            'Content-Type': 'application/json'
+          }
+        });
         
         if (!accResponse.ok) {
           handleFetchError(null, "최초로 계좌 목록을 불러오는 데 실패했습니다.");
@@ -150,7 +159,13 @@ function Tables() {
         if (accData.length === 0) return;
   
         const firstAccount = accData[0].accountId; // 첫 번째 계좌를 기본 선택
-        const txResponse = await fetch(`http://127.0.0.1:8080/api/tx/all/${firstAccount}`);
+        const txResponse = await fetch(`${process.env.REACT_APP_ENDPOINT_URL}/api/tx/all/${customerId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `${jwtToken}`, // JWT 토큰을 Authorization 헤더에 포함
+            'Content-Type': 'application/json'
+          }
+        });
         
         if (!txResponse.ok) {
           handleFetchError(null, "Failed to fetch transactions");
@@ -170,52 +185,18 @@ function Tables() {
     initFetchAcc();
   }, []);
   
-  // 첫 마운트 useEffect의 리펙토링하기 전 원본.
-  // useEffect( () => {
-  //   // 첫 마운트 시, 
-  //   // 먼저 계좌목록 조회 후, 
-  //   // 첫 번째 계좌의 거래내역을 조회.
-  //   const initFetchAcc = async () => {
-  //     try {
-  //       const customerId = localStorage.getItem("customerId"); // LocalStorage에서 customerId 가져오기
-  //       const response = await fetch(`http://127.0.0.1:8080/api/accounts/find?id=${customerId}`);
-  //       if (response.ok) {
-  //         const data = await response.json();
-  //         if (data.length > 0) {
-  //           const firstAccount = data[0].accountId; // 첫 번째 계좌를 기본 선택
-  //           try {
-  //             const response = await fetch(`http://127.0.0.1:8080/api/tx/all/${firstAccount}`);
-  //             if (response.ok) {
-  //               const data = await response.json();
-  //               console.log(data.content);
-  //               setTransactions(data.content);
-  //               setChartData(transformResponseToChartData(data.content));
-  //             } else {
-  //               console.error("Failed to fetch transactions");
-  //               setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
-  //             }
-  //           } catch (error) {
-  //             console.error("Error fetching transactions", error);
-  //             setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
-  //           }
-  //         }
-  //       } else {
-  //         console.error("최초로 계좌 목록을 불러오는 데 실패했습니다.");
-  //         setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
-  //       }
-  //     } catch (error) {
-  //       console.error("최초로 계좌 목록 요청 중 오류 발생", error);
-  //       setTransactions(mockTransactions); // API 요청 실패 시 목업 데이터 사용
-  //     }
-  //   };
-  //   initFetchAcc();
-  // }, [] );
-
   useEffect(() => {
     if (selectedAccountId) {
       const fetchTransactions = async () => {
         try {
-          const response = await fetch(`http://127.0.0.1:8080/api/tx/all/${selectedAccountId}`);
+          const response = await fetch(`${process.env.REACT_APP_ENDPOINT_URL}/api/tx/all/${selectedAccountId}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `${jwtToken}`, // JWT 토큰을 Authorization 헤더에 포함
+              'Content-Type': 'application/json'
+            }
+          });
+
           if (response.ok) {
             const data = await response.json();
             setTransactions(data.content);
@@ -237,8 +218,8 @@ function Tables() {
   
   const rows = transactions.map((tx) => {
     const result = {
-      senderName: tx.senderName,
-      receiverName: tx.receiverName,
+      //senderName: tx.senderName,
+      targetName: tx.targetName,
       amount: tx.amount,
       balanceAfterTx: tx.balanceAfterTx,
       description: tx.description,
@@ -248,8 +229,8 @@ function Tables() {
   });
 
   const columns = [
-    { name: "senderName", align: "left" },
-    { name: "receiverName", align: "left" },
+    //{ name: "senderName", align: "left" },
+    { name: "targetName", align: "left" },
     { name: "amount", align: "right" },
     { name: "balanceAfterTx", align: "right" },
     { name: "description", align: "left" },

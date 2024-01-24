@@ -61,7 +61,7 @@ function SignUp() {
 
     try {
       // 서버에 회원 가입 요청
-      const response = await fetch('http://localhost:8080/api/customers/signUp', { // 'YOUR_API_ENDPOINT'는 실제 API 엔드포인트로 대체해야 함
+      const response = await fetch(`${process.env.REACT_APP_ENDPOINT_URL}/api/customers/signUp`, { // 'YOUR_API_ENDPOINT'는 실제 API 엔드포인트로 대체해야 함
         method: 'POST', // 요청 방식에 따라 'POST' 등으로 변경할 수 있음
         headers: {
           'Content-Type': 'application/json',
@@ -76,10 +76,6 @@ function SignUp() {
 
       if (response.ok) {
         // 회원 가입 성공 처리
-        localStorage.setItem('customerId', response.customerId);
-        localStorage.setItem('customerName', customerName);
-        localStorage.setItem('customerPhone', customerPhone);
-        localStorage.setItem('customerEmail', customerEmail);
         alert("회원 가입 성공하였습니다! 로그인 페이지로 이동합니다.");
         navigate("/authentication/sign-in");
       } else {

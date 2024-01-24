@@ -14,7 +14,7 @@ Coded by www.creative-tim.com
 */
 
 import { useState,useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -43,6 +43,8 @@ import OrderOverview from "layouts/dashboard/components/OrderOverview";
 
 // Data
 import reportsBarChartData from "layouts/dashboard/data/reportsBarChartData";
+import NotificationComponent from "components/NotificationComponent";
+import NotiCompEvPoFill from "components/NotiCompEvPoFill";
 
 function formatCurrency(amount) {
   return new Intl.NumberFormat('ko-KR', {
@@ -56,14 +58,17 @@ function formatCurrency(amount) {
 function Dashboard() {
   const { size } = typography;
   const { chart, items } = reportsBarChartData;
-  const navigate = useNavigate();
+  const location = useLocation();
+  //const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]); // 계좌 목록 상태
+  const { customerName } = location.state || {};
+  const customerId = localStorage.getItem('customerId'); // LocalStorage에서 customerId 가져오기
+
   const fetchAccounts = async () => {
-    const customerId = localStorage.getItem('customerId'); // LocalStorage에서 customerId 가져오기
     const jwtToken = localStorage.getItem('jwtToken'); // LocalStorage에서 jwtToken 가져오기  
     
     try {
-      const response = await fetch(`http://localhost:8080/api/accounts/find?id=${customerId}`, {
+      const response = await fetch(`${process.env.REACT_APP_ENDPOINT_URL}/api/accounts/find?id=${customerId}`, {
         method: 'GET',
         headers: {
           'Authorization': `${jwtToken}`, // JWT 토큰을 Authorization 헤더에 포함
@@ -87,9 +92,6 @@ function Dashboard() {
   }, []);
 
   const createAnAccount = async () => {
-
-    const customerId = localStorage.getItem('customerId'); // LocalStorage에서 customerId 가져오기
-    
     const isConfirmed = window.confirm("정말로 계좌를 생성하시겠습니까?");
     
     if (!isConfirmed) return;
@@ -100,7 +102,7 @@ function Dashboard() {
     }
     
     try {
-      const response = await fetch(`http://localhost:8080/api/accounts/create/${customerId}`, {
+      const response = await fetch(`${process.env.REACT_APP_ENDPOINT_URL}/api/accounts/create/${customerId}`, {
         method: 'POST', // 계정 생성을 위한 POST 요청
         // 필요한 경우 헤더 설정
       });
@@ -118,10 +120,10 @@ function Dashboard() {
     }
   };
 
-  
   return (
     <DashboardLayout>
-      <DashboardNavbar />
+      <DashboardNavbar cNameProp={customerName} />
+      <NotiCompEvPoFill cId={customerId} />
       <SoftBox py={3}>
         <SoftBox mb={3}>
           <Grid container spacing={3}>

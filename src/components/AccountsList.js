@@ -16,9 +16,17 @@ function AccountsList({ onSelectAccount }) {
 
   useEffect(() => {
     const fetchAccounts = async () => {
+      const jwtToken = localStorage.getItem('jwtToken'); // LocalStorage에서 jwtToken 가져오기  
       try {
         const customerId = localStorage.getItem('customerId'); // LocalStorage에서 customerId 가져오기
-        const response = await fetch(`http://localhost:8080/api/accounts/find?id=${customerId}`);
+        // const response = await fetch(`${process.env.REACT_APP_ENDPOINT_URL}/api/accounts/find/${customerId}`, {
+        const response = await fetch(`${process.env.REACT_APP_ENDPOINT_URL}/api/accounts/find?id=${customerId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `${jwtToken}`, // JWT 토큰을 Authorization 헤더에 포함
+            'Content-Type': 'application/json'
+          }
+        });
         if (response.ok) {
           const data = await response.json();
           setAccounts(data);
