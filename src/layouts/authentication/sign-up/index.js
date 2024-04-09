@@ -47,7 +47,28 @@ function SignUp() {
   const [customerBirthMM, setCustomerBirthMM] = useState('');
   const [customerBirthDD, setCustomerBirthDD] = useState('');
   const [agreement, setAgreement] = useState(false);
+  /* 또는 아래와 같이 작성 가능
+    const [formData, setFormData] = useState({
+      customerName: '',
+      customerPhone: '',
+      customerEmail: '',
+      customerPwd: '',
+      customerBirthYYYY: '',
+      customerBirthMM: '',
+      customerBirthDD: '',
+      agreement: false
+    });
+    
+    위와 같이 작성할 경우, 변화는 아래와 같이 핸들링.
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+      setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+  */
   const navigate = useNavigate(); // useNavigate 훅 사용
+
+ 
 
   const handleSetAgremment = () => setAgreement(!agreement);
 
@@ -101,6 +122,8 @@ function SignUp() {
           <SoftBox component="form" role="form" onSubmit={handleSubmit}>
             <SoftBox mb={2}>
               <SoftInput type="email" placeholder="유저 이메일" onChange={(e) => setCustomerEmail(e.target.value)} />
+              // formData를 사용한 경우 아래와 같이 대체.
+              // <SoftInput type="email" name="customerEmail" placeholder="유저 이메일" onChange={handleChange} />
             </SoftBox>
             <SoftBox mb={2}>
               <SoftInput type="password" placeholder="패스워드" onChange={(e) => setCustomerPwd(e.target.value)} />
